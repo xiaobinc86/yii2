@@ -4,6 +4,7 @@ Yii Framework 2 Change Log
 2.0.4 under development
 -----------------------
 
+- Bug #6545: Fixed MySQL query syntax for multiple FROM tables and a join (pawzar, cebe)
 - Bug #7529: Fixed `yii\web\Response::sendContentAsFile()` that was broken in 2.0.3 (samdark)
 
 
