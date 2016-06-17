@@ -165,13 +165,13 @@ class Container extends Component
             $config = array_merge($definition, $config);
             $params = $this->mergeParams($class, $params);
 
-            if ($concrete === $class) {
+            if ($concrete === $class) {//判断是否是通过匿名设置依赖
                 $object = $this->build($class, $params, $config);
             } else {
                 $object = $this->get($concrete, $params, $config);
             }
         } elseif (is_object($definition)) {
-            return $this->_singletons[$class] = $definition;
+            return $this->_singletons[$class] = $definition;//当配置definition为对象时，相当于setSingleton
         } else {
             throw new InvalidConfigException('Unexpected object definition type: ' . gettype($definition));
         }
@@ -357,9 +357,9 @@ class Container extends Component
     protected function build($class, $params, $config)
     {
         /* @var $reflection ReflectionClass */
-        list ($reflection, $dependencies) = $this->getDependencies($class);
+        list ($reflection, $dependencies) = $this->getDependencies($class);//注意list这个语法的使用
 
-        foreach ($params as $index => $param) {
+        foreach ($params as $index => $param) {//会覆盖掉默认的param
             $dependencies[$index] = $param;
         }
 
@@ -373,6 +373,7 @@ class Container extends Component
             $dependencies[count($dependencies) - 1] = $config;
             return $reflection->newInstanceArgs($dependencies);
         } else {
+            //如没有实现Configurable接口，则先初始化对象，再进行property的设置
             $object = $reflection->newInstanceArgs($dependencies);
             foreach ($config as $name => $value) {
                 $object->$name = $value;
@@ -409,12 +410,12 @@ class Container extends Component
      */
     protected function getDependencies($class)
     {
-        if (isset($this->_reflections[$class])) {
+        if (isset($this->_reflections[$class])) {//每个依赖只解析一次
             return [$this->_reflections[$class], $this->_dependencies[$class]];
         }
 
         $dependencies = [];
-        $reflection = new ReflectionClass($class);
+        $reflection = new ReflectionClass($class);//采用PHP反射
 
         $constructor = $reflection->getConstructor();
         if ($constructor !== null) {
@@ -423,7 +424,7 @@ class Container extends Component
                     $dependencies[] = $param->getDefaultValue();
                 } else {
                     $c = $param->getClass();
-                    $dependencies[] = Instance::of($c === null ? null : $c->getName());
+                    $dependencies[] = Instance::of($c === null ? null : $c->getName());//注意此时只是初始化Instance对象
                 }
             }
         }
@@ -446,7 +447,7 @@ class Container extends Component
         foreach ($dependencies as $index => $dependency) {
             if ($dependency instanceof Instance) {
                 if ($dependency->id !== null) {
-                    $dependencies[$index] = $this->get($dependency->id);
+                    $dependencies[$index] = $this->get($dependency->id);//依赖对象被正真初始化
                 } elseif ($reflection !== null) {
                     $name = $reflection->getConstructor()->getParameters()[$index]->getName();
                     $class = $reflection->getName();
