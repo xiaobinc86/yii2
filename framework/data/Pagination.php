@@ -119,6 +119,7 @@ class Pagination extends Object implements Linkable
      * Because [[pageCount]] relies on the correct value of [[totalCount]] which may not be available
      * in some cases (e.g. MongoDB), you may want to set this property to be false to disable the page
      * number validation. By doing so, [[page]] will return the value indexed by [[pageParam]] in [[params]].
+     * 重要
      */
     public $validatePage = true;
     /**
