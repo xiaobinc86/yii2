@@ -144,6 +144,7 @@ abstract class BaseDataProvider extends Component implements DataProviderInterfa
         if ($this->getPagination() === false) {
             return $this->getCount();
         } elseif ($this->_totalCount === null) {
+            //当没有配置pagination的时候才会调用prepareTotalCount()
             $this->_totalCount = $this->prepareTotalCount();
         }
 
